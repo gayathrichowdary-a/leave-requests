@@ -1,0 +1,522 @@
+{
+  "name": "AI-Powered Leave Request Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Leave Request Form",
+        "formDescription": "Submit your leave request for approval",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Employee Name",
+              "fieldName": "employeeName",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "fieldName": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Leave Type",
+              "fieldType": "dropdown",
+              "fieldName": "leaveType",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Vacation"
+                  },
+                  {
+                    "option": "Sick Leave"
+                  },
+                  {
+                    "option": "Personal Leave"
+                  },
+                  {
+                    "option": "Emergency Leave"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Start Date",
+              "fieldType": "date",
+              "fieldName": "startDate",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "End Date",
+              "fieldType": "date",
+              "fieldName": "endDate",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Reason",
+              "fieldType": "textarea",
+              "fieldName": "reason",
+              "placeholder": "Please provide a brief reason for your leave request",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Your leave request has been submitted and is being processed. You will receive a notification shortly."
+            }
+          }
+        }
+      },
+      "id": "a13d37be-b2df-4e3b-a7df-759b4cc99ef0",
+      "name": "Leave Request Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        240,
+        400
+      ],
+      "webhookId": "50e7e405-c474-4267-8aae-9dac9cebbb77"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analyze this leave request and return ONLY JSON:\n\nEmployee Name: {{$json.employeeName}}\nEmail: {{$json.email}}\nLeave Type: {{$json.leaveType}}\nStart Date: {{$json.startDate}}\nEnd Date: {{$json.endDate}}\n\nReturn ONLY:\n{\"employeeName\":\"\",\"email\":\"\",\"leaveType\":\"\",\"startDate\":\"\",\"endDate\":\"\",\"daysRequested\":0,\"approved\":true,\"priority\":\"low\",\"requiresManagerReview\":false,\"notes\":\"\"}",
+        "options": {
+          "systemMessage": "You are an AI assistant that analyzes leave requests for a company. You must evaluate each request based on company policies and return structured data in the exact format specified."
+        }
+      },
+      "id": "75278e85-4b84-4c4c-8479-e9c5c441cfb5",
+      "name": "AI Leave Analyzer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        464,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"your_field\": { \"type\": \"string\" }\n  },\n  \"required\": [\"your_field\"],\n  \"additionalProperties\": false\n}"
+      },
+      "id": "7c9d8c75-7ce0-4dca-9202-f8064f8c83d6",
+      "name": "Structured Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "bLAi9LBCboiXX8oS",
+          "mode": "list",
+          "cachedResultName": "leave_requests_templete.csv",
+          "cachedResultUrl": "/projects/cAToEV1daan9xhMH/datatables/bLAi9LBCboiXX8oS"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "employeeName": "={{$json.output.employeeName}}",
+            "email": "={{$json.output.email}}\n",
+            "leaveType": "={{$json.output.leaveType}}\n",
+            "startDate": "={{$json.output.startDate}}\n",
+            "endDate": "={{$json.output.endDate}}\n",
+            "daysRequested": "={{$json.output.daysRequested}}\n",
+            "approved": "={{$json.output.approved}}\n",
+            "priority": "={{$json.output.priority}}\n",
+            "notes": "={{$json.output.notes}}",
+            "requiresManagerReview": "={{$json.output.requiresManagerReview}}\n"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "employeeName",
+              "displayName": "employeeName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "leaveType",
+              "displayName": "leaveType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "startDate",
+              "displayName": "startDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "endDate",
+              "displayName": "endDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "daysRequested",
+              "displayName": "daysRequested",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "approved",
+              "displayName": "approved",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "priority",
+              "displayName": "priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "requiresManagerReview",
+              "displayName": "requiresManagerReview",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "notes",
+              "displayName": "notes",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "1efb97ed-17a7-4054-a1f8-7c5971f534cb",
+      "name": "Store Leave Request",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        816,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.approved.toBoolean() }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "id": "acf142f5-a235-4413-8d08-9a8fd8f05d91"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "bb81d68f-caf2-453f-99a5-b7e893be4c1b",
+      "name": "Check Approval Status",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        400
+      ],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$('Leave Request Form').item.json.email}}",
+        "subject": "=Leave Approved ✅",
+        "message": "=Analyze this leave request and return ONLY JSON, no explanation:\n\nEmployee Name: {{$json.employeeName}}\nEmail: {{$json.email}}\nLeave Type: {{$json.leaveType}}\nStart Date: {{$json.startDate}}\nEnd Date: {{$json.endDate}}\n\nReturn ONLY this JSON with the ACTUAL values filled in:\n{\"employeeName\":\"{{$json.employeeName}}\",\"email\":\"{{$json.email}}\",\"leaveType\":\"{{$json.leaveType}}\",\"startDate\":\"{{$json.startDate}}\",\"endDate\":\"{{$json.endDate}}\",\"daysRequested\":3,\"approved\":true,\"priority\":\"low\",\"requiresManagerReview\":false,\"notes\":\"\"}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "6a58db15-4561-4f98-9c84-60b15ae80096",
+      "name": "Send Approval Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        304
+      ],
+      "webhookId": "723ef41b-7e84-4e1d-a7eb-da0c9689f07e",
+      "alwaysOutputData": true,
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ILiB8IXJw5FvoKtR",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{$json.email}}",
+        "subject": "=Leave Under Review ⏳",
+        "message": "=Hi {{$json.employeeName}},\n\nYour leave request is under review. Manager will respond soon.\n\n- HR Team",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "1d7146ca-7646-406e-befa-60fbff755e05",
+      "name": "Send Pending Review Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        496
+      ],
+      "webhookId": "12f9f8b0-0eca-4246-9fb3-edd76dafb333",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Omws63ezSaps4KiX",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "#general",
+          "mode": "name"
+        },
+        "messageType": "block",
+        "blocksUi": "=[\n  {\n    \"type\": \"header\",\n    \"text\": {\n      \"type\": \"plain_text\",\n      \"text\": \"🔔 Leave Request Requires Review\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"fields\": [\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Employee:*\\n{{ $(\"Leave Request Form\").item.json.employeeName }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Email:*\\n{{ $(\"Leave Request Form\").item.json.email }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Leave Type:*\\n{{ $(\"Leave Request Form\").item.json.leaveType }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Priority:*\\n{{ $(\"AI Leave Analyzer\").item.json.output.priority }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Start Date:*\\n{{ $(\"Leave Request Form\").item.json.startDate }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*End Date:*\\n{{ $(\"Leave Request Form\").item.json.endDate }}\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Duration:*\\n{{ $(\"AI Leave Analyzer\").item.json.output.daysRequested }} days\"\n      },\n      {\n        \"type\": \"mrkdwn\",\n        \"text\": \"*Requires Review:*\\n{{ $(\"AI Leave Analyzer\").item.json.output.requiresManagerReview ? \"Yes\" : \"No\" }}\"\n      }\n    ]\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*Reason:*\\n{{ $(\"Leave Request Form\").item.json.reason }}\"\n    }\n  },\n  {\n    \"type\": \"section\",\n    \"text\": {\n      \"type\": \"mrkdwn\",\n      \"text\": \"*AI Analysis Notes:*\\n{{ $(\"AI Leave Analyzer\").item.json.output.notes }}\"\n    }\n  }\n]",
+        "text": "=Leave request requires review from {{ $(\"Leave Request Form\").item.json.employeeName }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": true
+        }
+      },
+      "id": "3ba479d4-1712-484d-ae1b-8a85b52ca050",
+      "name": "Notify Manager on Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1488,
+        496
+      ],
+      "webhookId": "796f37b5-100a-4051-a3c6-a45405496846",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "rYByX1rcJqCZXS9s",
+          "name": "Slack OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        320,
+        608
+      ],
+      "id": "3a62e498-7656-4c6f-ac50-9d09c6037c0c",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "9ib8DJyHJyCRAI00",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "owner": {
+          "__rl": true,
+          "value": "gayathrichowdary-a",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "leave-requests",
+          "mode": "name"
+        },
+        "filePath": "=requests/leave_request_{{$now.toMillis()}}.json",
+        "fileContent": "={{ JSON.stringify($input.item.json, null, 2) }}",
+        "commitMessage": "New leave request added"
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        1056,
+        544
+      ],
+      "id": "7dd5481d-2829-49fe-93e1-001d215795d3",
+      "name": "Create a file1",
+      "webhookId": "d090caed-e37b-4136-a961-364c7c17792e",
+      "alwaysOutputData": true,
+      "credentials": {
+        "githubApi": {
+          "id": "KYuTKYHHZkXdrBx8",
+          "name": "GitHub account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Leave Request Form": {
+      "main": [
+        [
+          {
+            "node": "AI Leave Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Leave Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Store Leave Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Store Leave Request": {
+      "main": [
+        [
+          {
+            "node": "Check Approval Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create a file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Approval Status": {
+      "main": [
+        [
+          {
+            "node": "Send Approval Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Pending Review Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Pending Review Email": {
+      "main": [
+        [
+          {
+            "node": "Notify Manager on Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Leave Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "4dba0358-97d0-42ed-acb1-d545581f5aca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a79c03f954b0c4f3f113faae2a5ffa26ff52073a77de1dfabd254a467d1b052b"
+  },
+  "id": "Jjnt2UiMrnXHEaVv",
+  "tags": []
+}
