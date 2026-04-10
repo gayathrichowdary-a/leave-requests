@@ -1,0 +1,15 @@
+{
+  "employeeName": null,
+  "email": "\n",
+  "leaveType": "\n",
+  "startDate": "\n",
+  "endDate": "\n",
+  "daysRequested": "\n",
+  "approved": "\n",
+  "priority": "\n",
+  "requiresManagerReview": "\n",
+  "notes": null,
+  "id": 11,
+  "createdAt": "2026-04-10T15:13:20.844Z",
+  "updatedAt": "2026-04-10T15:13:20.844Z"
+}
