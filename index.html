@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI-Powered Leave Request System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #333;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1a73e8, #0d47a1);
+      color: white;
+      padding: 30px 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    header img {
+      width: 48px;
+      height: 48px;
+    }
+
+    header h1 {
+      font-size: 26px;
+      font-weight: 700;
+    }
+
+    header p {
+      font-size: 14px;
+      opacity: 0.85;
+      margin-top: 4px;
+    }
+
+    .stats {
+      display: flex;
+      gap: 20px;
+      padding: 30px 40px 10px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .stat-card .number {
+      font-size: 36px;
+      font-weight: 700;
+      color: #1a73e8;
+    }
+
+    .stat-card .label {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .container {
+      padding: 20px 40px 40px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin-bottom: 16px;
+      color: #1a73e8;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+      font-size: 16px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    thead {
+      background: linear-gradient(135deg, #1a73e8, #0d47a1);
+      color: white;
+    }
+
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.2s;
+    }
+
+    tbody tr:hover {
+      background: #f0f7ff;
+    }
+
+    tbody td {
+      padding: 13px 16px;
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-approved { background: #e6f4ea; color: #2e7d32; }
+    .badge-pending  { background: #fff3e0; color: #e65100; }
+    .badge-review   { background: #fce4ec; color: #c62828; }
+
+    .badge-vacation  { background: #e3f2fd; color: #1565c0; }
+    .badge-sick      { background: #fce4ec; color: #c62828; }
+    .badge-personal  { background: #f3e5f5; color: #6a1b9a; }
+    .badge-emergency { background: #fff3e0; color: #e65100; }
+
+    .priority-high   { color: #c62828; font-weight: 700; }
+    .priority-medium { color: #e65100; font-weight: 600; }
+    .priority-low    { color: #2e7d32; font-weight: 600; }
+
+    .error-msg {
+      background: #fff3e0;
+      border-left: 4px solid #ff9800;
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .refresh-btn {
+      background: #1a73e8;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-bottom: 20px;
+      transition: background 0.2s;
+    }
+
+    .refresh-btn:hover { background: #1557b0; }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      color: #aaa;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="white">
+    <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5C3.89 4 3 4.9 3 6v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+  </svg>
+  <div>
+    <h1>🤖 AI-Powered Leave Request System</h1>
+    <p>Automated by n8n · Analyzed by Groq AI · Stored on GitHub</p>
+  </div>
+</header>
+
+<div class="stats" id="stats">
+  <div class="stat-card"><div class="number" id="total">-</div><div class="label">Total Requests</div></div>
+  <div class="stat-card"><div class="number" id="approved">-</div><div class="label">Approved</div></div>
+  <div class="stat-card"><div class="number" id="pending">-</div><div class="label">Pending Review</div></div>
+  <div class="stat-card"><div class="number" id="days">-</div><div class="label">Total Days Requested</div></div>
+</div>
+
+<div class="container">
+  <button class="refresh-btn" onclick="loadRequests()">🔄 Refresh Data</button>
+  <h2>📋 Leave Requests</h2>
+  <div id="output" class="loading">Loading leave requests from GitHub...</div>
+</div>
+
+<footer>
+  Powered by n8n Automation · gayathrichowdary-a/leave-requests
+</footer>
+
+<script>
+  const OWNER = 'gayathrichowdary-a';
+  const REPO  = 'leave-requests';
+  const PATH  = 'requests';
+  const API   = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PATH}`;
+
+  async function loadRequests() {
+    document.getElementById('output').innerHTML = '<div class="loading">⏳ Loading...</div>';
+    try {
+      const res = await fetch(API);
+      const files = await res.json();
+
+      const jsonFiles = files.filter(f => f.name.endsWith('.json'));
+      if (!jsonFiles.length) {
+        document.getElementById('output').innerHTML = '<div class="error-msg">No leave requests found yet. Submit a form to see data here!</div>';
+        return;
+      }
+
+      const requests = [];
+      for (const file of jsonFiles) {
+        const r = await fetch(file.download_url);
+        const data = await r.json();
+        if (data && typeof data === 'object') requests.push(data);
+      }
+
+      // Stats
+      const total    = requests.length;
+      const approved = requests.filter(r => r.approved === true || r.approved === 'true').length;
+      const pending  = requests.filter(r => r.requiresManagerReview === true || r.requiresManagerReview === 'true').length;
+      const days     = requests.reduce((s, r) => s + (parseInt(r.daysRequested) || 0), 0);
+
+      document.getElementById('total').textContent    = total;
+      document.getElementById('approved').textContent = approved;
+      document.getElementById('pending').textContent  = pending;
+      document.getElementById('days').textContent     = days;
+
+      // Table
+      let html = `<table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Employee</th>
+            <th>Email</th>
+            <th>Leave Type</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Days</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Manager Review</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      requests.forEach((r, i) => {
+        const isApproved = r.approved === true || r.approved === 'true';
+        const needsReview = r.requiresManagerReview === true || r.requiresManagerReview === 'true';
+        const statusBadge = isApproved
+          ? '<span class="badge badge-approved">✅ Approved</span>'
+          : '<span class="badge badge-pending">⏳ Pending</span>';
+        const reviewBadge = needsReview
+          ? '<span class="badge badge-review">🔍 Yes</span>'
+          : '<span class="badge badge-approved">No</span>';
+
+        const leaveType = (r.leaveType || '').toLowerCase().replace(' ', '');
+        const leaveClass = leaveType.includes('vacation') ? 'badge-vacation'
+          : leaveType.includes('sick') ? 'badge-sick'
+          : leaveType.includes('personal') ? 'badge-personal'
+          : 'badge-review';
+
+        const priority = (r.priority || 'low').toLowerCase();
+        const priorityClass = priority === 'high' ? 'priority-high'
+          : priority === 'medium' ? 'priority-medium' : 'priority-low';
+
+        html += `<tr>
+          <td>${i + 1}</td>
+          <td><strong>${r.employeeName || '-'}</strong></td>
+          <td>${r.email || '-'}</td>
+          <td><span class="badge ${leaveClass}">${r.leaveType || '-'}</span></td>
+          <td>${r.startDate || '-'}</td>
+          <td>${r.endDate || '-'}</td>
+          <td>${r.daysRequested || '-'}</td>
+          <td><span class="${priorityClass}">${(r.priority || 'low').toUpperCase()}</span></td>
+          <td>${statusBadge}</td>
+          <td>${reviewBadge}</td>
+          <td>${r.notes || '-'}</td>
+        </tr>`;
+      });
+
+      html += '</tbody></table>';
+      document.getElementById('output').innerHTML = html;
+
+    } catch (err) {
+      document.getElementById('output').innerHTML = `<div class="error-msg">❌ Error loading data: ${err.message}</div>`;
+    }
+  }
+
+  loadRequests();
+</script>
+</body>
+</html>
