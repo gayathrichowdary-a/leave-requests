@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Leave Request — AI Powered</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0b0f1a;
+      --surface: #111827;
+      --border: #1e2d45;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59,130,246,0.25);
+      --accent2: #06b6d4;
+      --text: #e8edf5;
+      --muted: #64748b;
+      --success: #10b981;
+      --error: #ef4444;
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Mesh background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%, rgba(59,130,246,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(6,182,212,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Grid overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 640px;
+    }
+
+    /* Header */
+    .header {
+      margin-bottom: 36px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: var(--accent2);
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 100px;
+      margin-bottom: 18px;
+    }
+
+    .badge span.dot {
+      width: 6px; height: 6px;
+      background: var(--accent2);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .header h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 5vw, 42px);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #e8edf5 0%, #94a3b8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 15px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    /* Card */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      position: relative;
+      overflow: hidden;
+      animation: fadeUp 0.7s ease 0.1s both;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 24px 64px rgba(0,0,0,0.4);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 20px; right: 20px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent);
+    }
+
+    /* Step indicator */
+    .steps {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .step-dot {
+      height: 4px;
+      flex: 1;
+      background: var(--border);
+      border-radius: 2px;
+      transition: background 0.4s ease;
+    }
+
+    .step-dot.active { background: var(--accent); }
+    .step-dot.done { background: var(--success); }
+
+    /* Form groups */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+
+    .field {
+      margin-bottom: 20px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .field label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .field label .req { color: var(--accent); margin-left: 2px; }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 400;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus {
+      border-color: var(--accent);
+      background: rgba(59,130,246,0.06);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .field input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.5) sepia(1) saturate(2) hue-rotate(180deg);
+      cursor: pointer;
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 110px;
+      line-height: 1.6;
+    }
+
+    /* Select arrow */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+      font-size: 14px;
+    }
+
+    .field select option { background: #1e2d45; color: var(--text); }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0 24px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent2);
+      margin-bottom: 16px;
+    }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+      border: none;
+      border-radius: var(--radius);
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.2s;
+      margin-top: 8px;
+      box-shadow: 0 4px 20px rgba(59,130,246,0.35);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(59,130,246,0.5);
+    }
+
+    .btn-submit:active { transform: translateY(0); }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-submit .btn-inner {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Success state */
+    .success-card {
+      text-align: center;
+      padding: 20px 0 12px;
+      display: none;
+    }
+
+    .success-icon {
+      width: 72px; height: 72px;
+      background: rgba(16,185,129,0.12);
+      border: 2px solid rgba(16,185,129,0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+    }
+
+    .success-card h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: var(--success);
+    }
+
+    .success-card p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 360px;
+      margin: 0 auto 24px;
+    }
+
+    .btn-reset {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--muted);
+      padding: 10px 24px;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .btn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Error banner */
+    .error-banner {
+      display: none;
+      background: rgba(239,68,68,0.1);
+      border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #fca5a5;
+      font-size: 13.5px;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* Footer note */
+    .footer-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      animation: fadeUp 0.8s ease 0.3s both;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .footer-note svg { opacity: 0.5; }
+
+    /* Field error */
+    .field-error {
+      display: none;
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .field.invalid input,
+    .field.invalid select,
+    .field.invalid textarea {
+      border-color: var(--error);
+    }
+
+    .field.invalid .field-error { display: block; }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    /* Staggered field animations */
+    .field:nth-child(1) { animation-delay: 0.15s; }
+    .field:nth-child(2) { animation-delay: 0.2s; }
+    .field:nth-child(3) { animation-delay: 0.25s; }
+    .field:nth-child(4) { animation-delay: 0.3s; }
+    .field:nth-child(5) { animation-delay: 0.35s; }
+    .field:nth-child(6) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">
+      <span class="dot"></span>
+      AI-Powered Workflow
+    </div>
+    <h1>Leave Request<br>Handler</h1>
+    <p>Submit your leave request. Our AI system will review and process it automatically.</p>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+
+    <!-- Step progress -->
+    <div class="steps">
+      <div class="step-dot active" id="s1"></div>
+      <div class="step-dot" id="s2"></div>
+      <div class="step-dot" id="s3"></div>
+    </div>
+
+    <!-- Error banner -->
+    <div class="error-banner" id="errorBanner">
+      ⚠️ <span id="errorMsg">Something went wrong. Please try again.</span>
+    </div>
+
+    <!-- Form -->
+    <div id="formSection">
+
+      <div class="section-title">Personal Info</div>
+
+      <div class="form-row">
+        <div class="field" id="f-employeeName">
+          <label>Employee Name <span class="req">*</span></label>
+          <input type="text" id="employeeName" placeholder="e.g. Priya Sharma" autocomplete="name"/>
+          <div class="field-error">Please enter your name.</div>
+        </div>
+        <div class="field" id="f-email">
+          <label>Work Email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="you@company.com" autocomplete="email"/>
+          <div class="field-error">Please enter a valid email.</div>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+      <div class="section-title">Leave Details</div>
+
+      <div class="field" id="f-leaveType">
+        <label>Leave Type <span class="req">*</span></label>
+        <div class="select-wrap">
+          <select id="leaveType">
+            <option value="" disabled selected>Select a leave type</option>
+            <option value="Vacation">🏖️ Vacation</option>
+            <option value="Sick Leave">🤒 Sick Leave</option>
+            <option value="Personal Leave">🧘 Personal Leave</option>
+            <option value="Emergency Leave">🚨 Emergency Leave</option>
+          </select>
+        </div>
+        <div class="field-error">Please select a leave type.</div>
+      </div>
+
+      <div class="form-row">
+        <div class="field" id="f-startDate">
+          <label>Start Date <span class="req">*</span></label>
+          <input type="date" id="startDate"/>
+          <div class="field-error">Please select a start date.</div>
+        </div>
+        <div class="field" id="f-endDate">
+          <label>End Date <span class="req">*</span></label>
+          <input type="date" id="endDate"/>
+          <div class="field-error">Please select a valid end date.</div>
+        </div>
+      </div>
+
+      <div class="field" id="f-reason">
+        <label>Reason <span class="req">*</span></label>
+        <textarea id="reason" placeholder="Please provide a brief reason for your leave request…"></textarea>
+        <div class="field-error">Please provide a reason.</div>
+      </div>
+
+      <button class="btn-submit" id="submitBtn" onclick="submitForm()">
+        <span class="btn-inner" id="btnLabel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          Submit Leave Request
+        </span>
+      </button>
+
+    </div>
+
+    <!-- Success state -->
+    <div class="success-card" id="successSection">
+      <div class="success-icon">✅</div>
+      <h2>Request Submitted!</h2>
+      <p>Your leave request has been submitted and is being processed by our AI system. You'll receive an email notification shortly.</p>
+      <button class="btn-reset" onclick="resetForm()">Submit Another Request</button>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-note">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    Powered by n8n · AI Leave Analyzer · Groq LLaMA 3.3
+  </div>
+
+</div>
+
+<script>
+  // ─── CONFIG ───────────────────────────────────────────────────────────────
+  // Replace this URL with your actual n8n webhook URL after activating the workflow
+  const N8N_WEBHOOK_URL = 'https://YOUR_N8N_INSTANCE/webhook/50e7e405-c474-4267-8aae-9dac9cebbb77';
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Set min date to today
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('startDate').min = today;
+  document.getElementById('endDate').min = today;
+
+  document.getElementById('startDate').addEventListener('change', function() {
+    document.getElementById('endDate').min = this.value;
+    if (document.getElementById('endDate').value < this.value) {
+      document.getElementById('endDate').value = this.value;
+    }
+    updateStepProgress();
+  });
+
+  // Track progress
+  ['employeeName','email','leaveType','startDate','endDate','reason'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', updateStepProgress);
+    el.addEventListener('change', updateStepProgress);
+  });
+
+  function updateStepProgress() {
+    const name  = document.getElementById('employeeName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const type  = document.getElementById('leaveType').value;
+    const start = document.getElementById('startDate').value;
+    const end   = document.getElementById('endDate').value;
+    const reason= document.getElementById('reason').value.trim();
+
+    const s1 = name && email;
+    const s2 = s1 && type && start && end;
+    const s3 = s2 && reason;
+
+    document.getElementById('s1').className = 'step-dot ' + (s1 ? 'done' : 'active');
+    document.getElementById('s2').className = 'step-dot ' + (s2 ? 'done' : s1 ? 'active' : '');
+    document.getElementById('s3').className = 'step-dot ' + (s3 ? 'done' : s2 ? 'active' : '');
+  }
+
+  function validate() {
+    let valid = true;
+
+    const fields = {
+      employeeName: { el: document.getElementById('employeeName'), check: v => v.trim().length > 0 },
+      email:        { el: document.getElementById('email'),        check: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      leaveType:    { el: document.getElementById('leaveType'),    check: v => v !== '' },
+      startDate:    { el: document.getElementById('startDate'),    check: v => v !== '' },
+      endDate:      { el: document.getElementById('endDate'),      check: v => v !== '' && v >= document.getElementById('startDate').value },
+      reason:       { el: document.getElementById('reason'),       check: v => v.trim().length > 5 },
+    };
+
+    for (const [key, { el, check }] of Object.entries(fields)) {
+      const wrapper = document.getElementById('f-' + key);
+      if (!check(el.value)) {
+        wrapper.classList.add('invalid');
+        valid = false;
+      } else {
+        wrapper.classList.remove('invalid');
+      }
+    }
+
+    return valid;
+  }
+
+  async function submitForm() {
+    hideError();
+    if (!validate()) return;
+
+    const btn = document.getElementById('submitBtn');
+    const label = document.getElementById('btnLabel');
+    btn.disabled = true;
+    label.innerHTML = '<div class="spinner"></div> Processing…';
+
+    const payload = {
+      employeeName: document.getElementById('employeeName').value.trim(),
+      email:        document.getElementById('email').value.trim(),
+      leaveType:    document.getElementById('leaveType').value,
+      startDate:    document.getElementById('startDate').value,
+      endDate:      document.getElementById('endDate').value,
+      reason:       document.getElementById('reason').value.trim(),
+    };
+
+    try {
+      const res = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error(`Server responded with ${res.status}`);
+
+      // Show success
+      document.getElementById('formSection').style.display = 'none';
+      document.getElementById('successSection').style.display = 'block';
+
+      // All steps done
+      ['s1','s2','s3'].forEach(s => document.getElementById(s).className = 'step-dot done');
+
+    } catch (err) {
+      showError('Could not reach the n8n workflow. Please check your webhook URL or try again. (' + err.message + ')');
+      btn.disabled = false;
+      label.innerHTML = `
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+        </svg>
+        Submit Leave Request`;
+    }
+  }
+
+  function showError(msg) {
+    const banner = document.getElementById('errorBanner');
+    document.getElementById('errorMsg').textContent = msg;
+    banner.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('errorBanner').style.display = 'none';
+  }
+
+  function resetForm() {
+    document.getElementById('successSection').style.display = 'none';
+    document.getElementById('formSection').style.display = 'block';
+
+    ['employeeName','email','reason'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('leaveType').value = '';
+    document.getElementById('startDate').value = '';
+    document.getElementById('endDate').value = '';
+
+    ['s1','s2','s3'].forEach((s, i) => {
+      document.getElementById(s).className = 'step-dot' + (i === 0 ? ' active' : '');
+    });
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = false;
+    document.getElementById('btnLabel').innerHTML = `
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/>
+      </svg>
+      Submit Leave Request`;
+
+    hideError();
+  }
+</script>
+</body>
+</html>
